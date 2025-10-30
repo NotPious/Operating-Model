@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operating Model Resource Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 20px;
+            opacity: 0.9;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: #2c3e50;
+            border-color: white;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+        }
+        
+        .export-btn {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+        }
+        
+        .export-btn:hover {
+            box-shadow: 0 6px 12px rgba(39, 174, 96, 0.4);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th {
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            transition: background-color 0.2s ease;
+        }
+        
+        tr:hover td {
+            background-color: #f8f9ff;
+        }
+        
+        input, select {
+            width: 90%;
+            padding: 8px;
+            border: 2px solid #e3f2fd;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        input[readonly] {
+            background: linear-gradient(45deg, #ecf0f1, #bdc3c7);
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .product-name {
+            text-align: left !important;
+            font-weight: 500;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+        }
+        
+        .totals-row {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .totals-row input {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+        
+        .delete-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+        }
+        
+        .delete-btn:hover {
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
+        }
+        
+        .capacity-analysis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .capacity-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #3498db;
+        }
+        
+        .capacity-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .capacity-metric {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .over-capacity {
+            border-left-color: #e74c3c;
+        }
+        
+        .over-capacity .capacity-metric {
+            color: #e74c3c;
+        }
+        
+        .under-capacity {
+            border-left-color: #f39c12;
+        }
+        
+        .under-capacity .capacity-metric {
+            color: #f39c12;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .capacity-analysis {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="pageTitle">Operating Model Resource Calculator</h1>
+            <p id="pageDescription">Calculate resources across products and work types (KLO, TD, Enhancements)</p>
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchPage('operating')">Operating Model</button>
+                <button class="tab-btn" onclick="switchPage('demand')">Demand Planning</button>
+                <button class="tab-btn" onclick="switchPage('capacity')">Capacity Analysis</button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="operatingPage" class="page active">
+                <div class="controls">
+                    <button onclick="addProduct()">+ Add Product</button>
+                    <button onclick="addColumn()">+ Add Work Type</button>
+                    <button class="export-btn" onclick="exportToCSV('operating')">📊 Export to CSV</button>
+                </div>
+                
+                <div class="table-container">
+                    <table id="resourceTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>KLO</th>
+                                <th>TD</th>
+                                <th>Enhancements</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td class="product-name">
+                                    <input type="text" placeholder="Enter product name..." onchange="calculateTotals(); updateProductOptions()">
+                                </td>
+                                <td><input type="number" value="0" onchange="calculateRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="totals-row">
+                                <td><strong>TOTALS</strong></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div id="demandPage" class="page">
+                <div class="controls">
+                    <button onclick="addProject()">+ Add Project</button>
+                    <button class="export-btn" onclick="exportToCSV('demand')">📊 Export to CSV</button>
+                </div>
+                
+                <div class="table-container">
+                    <table id="demandTable">
+                        <thead>
+                            <tr>
+                                <th>Project</th>
+                                <th>Product</th>
+                                <th>Jan</th>
+                                <th>Feb</th>
+                                <th>Mar</th>
+                                <th>Apr</th>
+                                <th>May</th>
+                                <th>Jun</th>
+                                <th>Jul</th>
+                                <th>Aug</th>
+                                <th>Sep</th>
+                                <th>Oct</th>
+                                <th>Nov</th>
+                                <th>Dec</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="demandTableBody">
+                            <tr>
+                                <td class="product-name">
+                                    <input type="text" placeholder="Enter project name..." onchange="calculateDemandTotals()">
+                                </td>
+                                <td>
+                                    <select onchange="calculateDemandTotals()">
+                                        <option value="">Select product...</option>
+                                    </select>
+                                </td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><button class="delete-btn" onclick="deleteDemandRow(this)">Delete</button></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="totals-row">
+                                <td><strong>TOTALS</strong></td>
+                                <td></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td><input type="number" value="0" readonly></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div id="capacityPage" class="page">
+                <div class="controls">
+                    <button onclick="refreshCapacityAnalysis()">🔄 Refresh Analysis</button>
+                    <button class="export-btn" onclick="exportToCSV('capacity')">📊 Export Analysis</button>
+                </div>
+                
+                <div class="capacity-analysis" id="capacityAnalysis">
+                    <div class="capacity-card">
+                        <h3>Total Operating Capacity</h3>
+                        <div class="capacity-metric" id="totalCapacity">0</div>
+                        <p>Total resources allocated across all products</p>
+                    </div>
+                    
+                    <div class="capacity-card">
+                        <h3>Total Demand</h3>
+                        <div class="capacity-metric" id="totalDemand">0</div>
+                        <p>Total project demand across all months</p>
+                    </div>
+                    
+                    <div class="capacity-card" id="utilizationCard">
+                        <h3>Capacity Utilization</h3>
+                        <div class="capacity-metric" id="utilizationRate">0%</div>
+                        <p id="utilizationText">Resource utilization rate</p>
+                    </div>
+                    
+                    <div class="capacity-card">
+                        <h3>Capacity Gap</h3>
+                        <div class="capacity-metric" id="capacityGap">0</div>
+                        <p>Difference between demand and capacity</p>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="capacityTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Operating Capacity</th>
+                                <th>Demand (Annual)</th>
+                                <th>Utilization %</th>
+                                <th>Gap</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="capacityTableBody">
+                            <tr>
+                                <td>No data available</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let productCounter = 1;
+        let projectCounter = 1;
+        let columnCounter = 0;
+        let currentPage = 'operating';
+        
+        function switchPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected page
+            document.getElementById(page + 'Page').classList.add('active');
+            document.querySelector(`[onclick="switchPage('${page}')"]`).classList.add('active');
+            
+            // Update page title and description
+            if (page === 'operating') {
+                document.getElementById('pageTitle').textContent = 'Operating Model Resource Calculator';
+                document.getElementById('pageDescription').textContent = 'Calculate resources across products and work types (KLO, TD, Enhancements)';
+            } else if (page === 'demand') {
+                document.getElementById('pageTitle').textContent = 'Demand Planning Calculator';
+                document.getElementById('pageDescription').textContent = 'Plan project demand across products and months';
+            } else if (page === 'capacity') {
+                document.getElementById('pageTitle').textContent = 'Capacity Analysis Dashboard';
+                document.getElementById('pageDescription').textContent = 'Analyze capacity vs demand and resource utilization';
+                refreshCapacityAnalysis();
+            }
+            
+            currentPage = page;
+            
+            // Update product options in demand page
+            if (page === 'demand') {
+                updateProductOptions();
+            }
+        }
+        
+        function calculateRow(input) {
+            const row = input.closest('tr');
+            const inputs = row.querySelectorAll('input[type="number"]:not([readonly])');
+            const totalCell = row.querySelector('input[readonly]');
+            
+            let total = 0;
+            inputs.forEach(inp => {
+                total += parseFloat(inp.value) || 0;
+            });
+            
+            totalCell.value = total.toFixed(1);
+            calculateTotals();
+        }
+        
+        function calculateTotals() {
+            const table = document.getElementById('resourceTable');
+            if (!table) return;
+            
+            const rows = table.querySelectorAll('#tableBody tr');
+            const totalRow = table.querySelector('tfoot tr');
+            if (!totalRow) return;
+            
+            const totalInputs = totalRow.querySelectorAll('input[type="number"]');
+            
+            // Reset totals
+            totalInputs.forEach(input => input.value = 0);
+            
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input[type="number"]');
+                inputs.forEach((input, index) => {
+                    if (input.hasAttribute('readonly')) return; // Skip readonly inputs
+                    const value = parseFloat(input.value) || 0;
+                    if (totalInputs[index]) {
+                        const currentTotal = parseFloat(totalInputs[index].value) || 0;
+                        totalInputs[index].value = (currentTotal + value).toFixed(1);
+                    }
+                });
+            });
+            
+            // Calculate grand total
+            let grandTotal = 0;
+            for (let i = 0; i < totalInputs.length - 1; i++) {
+                grandTotal += parseFloat(totalInputs[i].value) || 0;
+            }
+            if (totalInputs[totalInputs.length - 1]) {
+                totalInputs[totalInputs.length - 1].value = grandTotal.toFixed(1);
+            }
+        }
+        
+        function addProduct() {
+            productCounter++;
+            const tableBody = document.getElementById('tableBody');
+            const headerCells = document.querySelectorAll('#resourceTable thead th').length;
+            const workTypeCols = headerCells - 3; // Subtract Product, Total, and Actions columns
+            
+            const newRow = document.createElement('tr');
+            
+            // Product name cell
+            newRow.innerHTML = `
+                <td class="product-name">
+                    <input type="text" placeholder="Product ${productCounter}..." onchange="calculateTotals(); updateProductOptions()">
+                </td>
+            `;
+            
+            // Work type cells
+            for (let i = 1; i < workTypeCols + 1; i++) {
+                newRow.innerHTML += `
+                    <td><input type="number" value="0" onchange="calculateRow(this)" min="0" step="0.1"></td>
+                `;
+            }
+            
+            // Total and Actions cells
+            newRow.innerHTML += `
+                <td><input type="number" value="0" readonly></td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">Delete</button></td>
+            `;
+            
+            tableBody.appendChild(newRow);
+            calculateTotals();
+            updateProductOptions();
+        }
+        
+        function addColumn() {
+            const columnName = prompt('Enter work type name:');
+            if (!columnName) return;
+            
+            // Add header
+            const headerRow = document.querySelector('#resourceTable thead tr');
+            const newHeader = document.createElement('th');
+            newHeader.textContent = columnName;
+            headerRow.insertBefore(newHeader, headerRow.children[headerRow.children.length - 2]); // Before Total column
+            
+            // Add cells to existing rows
+            const bodyRows = document.querySelectorAll('#tableBody tr');
+            bodyRows.forEach(row => {
+                const newCell = document.createElement('td');
+                newCell.innerHTML = '<input type="number" value="0" onchange="calculateRow(this)" min="0" step="0.1">';
+                row.insertBefore(newCell, row.children[row.children.length - 2]); // Before Total column
+            });
+            
+            // Add cell to totals row
+            const totalRow = document.querySelector('#resourceTable tfoot tr');
+            const newTotalCell = document.createElement('td');
+            newTotalCell.innerHTML = '<input type="number" value="0" readonly>';
+            totalRow.insertBefore(newTotalCell, totalRow.children[totalRow.children.length - 2]); // Before Total column
+            
+            calculateTotals();
+        }
+        
+        function deleteRow(button) {
+            if (document.querySelectorAll('#tableBody tr').length <= 1) {
+                alert('Cannot delete the last row!');
+                return;
+            }
+            
+            button.closest('tr').remove();
+            calculateTotals();
+            updateProductOptions();
+        }
+        
+        // Demand Planning Functions
+        function updateProductOptions() {
+            // Check if elements exist before trying to access them
+            const productInputs = document.querySelectorAll('#tableBody .product-name input');
+            const productSelects = document.querySelectorAll('#demandTableBody select');
+            
+            if (!productInputs || !productSelects) return;
+            
+            // Get all product names from the operating model
+            const products = [];
+            
+            productInputs.forEach(input => {
+                if (input.value && input.value.trim()) {
+                    products.push(input.value.trim());
+                }
+            });
+            
+            // Update all product dropdowns in demand table
+            productSelects.forEach(select => {
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Select product...</option>';
+                
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product;
+                    option.textContent = product;
+                    if (product === currentValue) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+            });
+        }
+        
+        function calculateDemandRow(input) {
+            const row = input.closest('tr');
+            const monthInputs = row.querySelectorAll('input[type="number"]:not([readonly])');
+            const totalCell = row.querySelector('input[readonly]');
+            
+            let total = 0;
+            monthInputs.forEach(inp => {
+                total += parseFloat(inp.value) || 0;
+            });
+            
+            totalCell.value = total.toFixed(1);
+            calculateDemandTotals();
+        }
+        
+        function calculateDemandTotals() {
+            const table = document.getElementById('demandTable');
+            if (!table) return;
+            
+            const rows = table.querySelectorAll('#demandTableBody tr');
+            const totalRow = table.querySelector('tfoot tr');
+            if (!totalRow) return;
+            
+            const totalInputs = totalRow.querySelectorAll('input[type="number"]');
+            
+            // Reset totals
+            totalInputs.forEach(input => input.value = 0);
+            
+            rows.forEach(row => {
+                const monthInputs = row.querySelectorAll('input[type="number"]:not([readonly])');
+                monthInputs.forEach((input, index) => {
+                    const value = parseFloat(input.value) || 0;
+                    if (totalInputs[index]) {
+                        const currentTotal = parseFloat(totalInputs[index].value) || 0;
+                        totalInputs[index].value = (currentTotal + value).toFixed(1);
+                    }
+                });
+            });
+            
+            // Calculate grand total
+            let grandTotal = 0;
+            for (let i = 0; i < totalInputs.length - 1; i++) {
+                grandTotal += parseFloat(totalInputs[i].value) || 0;
+            }
+            if (totalInputs[totalInputs.length - 1]) {
+                totalInputs[totalInputs.length - 1].value = grandTotal.toFixed(1);
+            }
+        }
+        
+        function addProject() {
+            projectCounter++;
+            const tableBody = document.getElementById('demandTableBody');
+            
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td class="product-name">
+                    <input type="text" placeholder="Project ${projectCounter}..." onchange="calculateDemandTotals()">
+                </td>
+                <td>
+                    <select onchange="calculateDemandTotals()">
+                        <option value="">Select product...</option>
+                    </select>
+                </td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" onchange="calculateDemandRow(this)" min="0" step="0.1"></td>
+                <td><input type="number" value="0" readonly></td>
+                <td><button class="delete-btn" onclick="deleteDemandRow(this)">Delete</button></td>
+            `;
+            
+            tableBody.appendChild(newRow);
+            updateProductOptions();
+            calculateDemandTotals();
+        }
+        
+        function deleteDemandRow(button) {
+            if (document.querySelectorAll('#demandTableBody tr').length <= 1) {
+                alert('Cannot delete the last row!');
+                return;
+            }
+            
+            button.closest('tr').remove();
+            calculateDemandTotals();
+        

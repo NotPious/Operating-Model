@@ -1,0 +1,53 @@
+📁 Project Structure
+Code
+operating-model-calculator/
+├── index.html
+├── css/
+│   └── styles.css
+├── js/
+│   └── app.js
+├── assets/
+│   └── (images, icons, etc.)
+├── README.md
+
+. Operating Model View
+
+Allows manual input for KLO and TD. The Enhancements column in Operating Model becomes read-only, dynamically calculated from the Demand Planning data.
+
+📊 Demand Planning View
+This section helps forecast and prioritize work based on business needs.
+
+The Demand Planning view captures detailed enhancement demand per product.
+
+Suggested Features:
+
+Work Type Forecast Table A table showing estimated demand for each product across work types (KLO, TD, Enhancements).
+
+plaintext
+| Product     | KLO Demand | TD Demand | Enhancements Demand | Priority |
+|-------------|------------|-----------|----------------------|----------|
+| Portal      | 2          | 1         | 5                    | High     |
+| Mobile App  | 1          | 2         | 3                    | Medium   |
+Priority Selector Dropdowns or tags to assign priority levels (High, Medium, Low).
+
+Forecast Period Selector Option to choose timeframes (e.g., Q1, Q2, Monthly).
+
+Notes Section Freeform text area for strategic notes or assumptions.
+
+⚙️ Capacity Analysis View
+This section compares available resources against forecasted demand.
+
+Suggested Features:
+
+Team Capacity Table Shows available hours or FTEs per team or role.
+
+plaintext
+| Team         | Available Hours | KLO Allocation | TD Allocation | Enhancements Allocation |
+|--------------|-----------------|----------------|----------------|--------------------------|
+| Dev Team     | 160             | 40             | 60             | 60                       |
+| QA Team      | 120             | 30             | 30             | 60                       |
+Utilization Metrics Automatically calculate % utilization per team.
+
+Over/Under Capacity Flags Highlight where demand exceeds capacity.
+
+Scenario Planning Optional sliders or inputs to simulate changes in team size or demand.

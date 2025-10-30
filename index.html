@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operating Model Resource Calculator</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <h1>Operating Model Resource Calculator</h1>
+  <p>Calculate resources across products and work types (KLO, TD, Enhancements)</p>
+
+  <!-- Top Navigation Buttons -->
+  <div id="top-buttons">
+    <button data-view="operating-model">Operating Model</button>
+    <button data-view="demand-planning">Demand Planning</button>
+    <button data-view="capacity-analysis">Capacity Analysis</button>
+  </div>
+
+  <!-- View Sections -->
+  <div id="views">
+    <div class="view" id="operating-model-view">
+      <!-- Main Action Buttons -->
+      <div id="main-actions">
+        <button id="add-product">+ Add Product</button>
+        <button id="add-work-type">+ Add Work Type</button>
+        <button id="export-csv">📊 Export to CSV</button>
+      </div>
+
+      <!-- Calculator Table -->
+      <div id="calculator">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>KLO</th>
+              <th>TD</th>
+              <th>Enhancements</th>
+              <th>Total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>portal</td>
+              <td><input type="number" value="1" /></td>
+              <td><input type="number" value="1" /></td>
+              <td><input type="number" value="4" disabled /></td>
+              <td>0</td>
+              <td><button class="delete-btn">Delete</button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>TOTALS</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="view" id="demand-planning-view">
+      <div id="demand-planning">
+        <h2>Enhancement Demand by Product</h2>
+        <table id="demand-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Enhancement 1</th>
+              <th>Enhancement 2</th>
+              <th>Enhancement 3</th>
+              <th>Total Enhancements</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>portal</td>
+              <td><input type="number" value="1" /></td>
+              <td><input type="number" value="2" /></td>
+              <td><input type="number" value="1" /></td>
+              <td class="enh-total">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="view" id="capacity-analysis-view">
+      <div id="capacity-analysis">
+        <h2>Capacity vs Demand</h2>
+        <table id="capacity-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Capacity</th>
+              <th>Total Demand</th>
+              <th>Variance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>portal</td>
+              <td><input type="number" value="5" /></td>
+              <td class="total-demand">0</td>
+              <td class="variance">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
